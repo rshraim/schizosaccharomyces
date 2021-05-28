@@ -1,0 +1,2 @@
+# schizosaccharomyces
+scripts for schizosaccharomyces metatranscriptomes search
