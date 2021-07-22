@@ -8,11 +8,11 @@ OTHERREF="~/out_merged.fna"
 ADAPTERS="~/bbmap/37.28/bin/resources/adapters.fa" #for trimming adapters from bbduk
 
 mkdir raw_data trimmed_data x-mapped fasta blast
-RAW="/data/home/wolfproj/wolfproj-14/rasha/yeast_thesis/MATSS/raw_data/"
-TRM="/data/home/wolfproj/wolfproj-14/rasha/yeast_thesis/MATSS/trimmed_data/"
-XMAP="/data/home/wolfproj/wolfproj-14/rasha/yeast_thesis/MATSS/x-mapped/"
-FASTA="/data/home/wolfproj/wolfproj-14/rasha/yeast_thesis/MATSS/fasta/"
-BLAST="/data/home/wolfproj/wolfproj-14/rasha/yeast_thesis/MATSS/blast/"
+RAW="~/raw_data/"
+TRM="~/trimmed_data/"
+XMAP="~/MATSS/x-mapped/"
+FASTA="~/fasta/"
+BLAST="~/blast/"
 
 module load aspera/3.7.2 bbmap/37.28 trimgalore/0.4.4 blast/2.6.0+
 
