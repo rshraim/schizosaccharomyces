@@ -1,0 +1,41 @@
+#### Expression correlation ####
+
+#using data from Marguerat et al 2012 doi.org/10.1016/j.cell.2012.09.019
+
+expression <- read_csv("Marguerat2012_Expression.csv") %>%  # Import data and keep relevant columns
+  select(Systematic.name, Common.name, MM.mRNA.cpc, MN.mRNA.cpc, exonic.length ) 
+
+pergene <- annotated %>% filter(!is.na(attributes)) %>% # use my data.frame and keep only those with annotattion
+  filter(!str_detect(attributes, ":")) %>%  # keep only annotations for gene name
+  select(qseqid, Systematic.name=attributes) %>% 
+  group_by( Systematic.name ) %>% summarise(n= n()) %>%    # count the number of reads per gene
+      # next two lines to get rid of the extra .1 added for some genes
+  separate( Systematic.name, into = c("X1", "X2", "X3") ) %>% select( -X3) %>%  
+  unite( "Systematic.name", X1:X2 , sep = ".") #%>% 
+  #filter( n < 1e3 ) # uncomment to test without outliers
+
+pergene <- left_join(pergene, expression, by = c("Systematic.name") ) %>%
+  filter( !is.na(Common.name) ) %>% # combine two and keep only those that are used in Marguerat 2021
+  mutate( corrected_n = n / exonic.length ) # scale reads by exon length
+
+# plot Vegetative data set
+exp_veg <- ggplot(pergene, aes(y = log10(corrected_n), x = log10(MM.mRNA.cpc))) + 
+  geom_point() + geom_smooth( method = "lm") + theme_bw() + 
+  xlab("log10( molecules/cell )") +
+  ggtitle("Vegetative growth phase") +
+  ylab("log10( reads/kb )")
+# plot Quiescence data set  
+exp_arrest <- ggplot(pergene, aes(y = log10(corrected_n), x = log10(MN.mRNA.cpc))) + 
+  geom_point() + geom_smooth( method = "lm") + theme_bw() + 
+  xlab("log10( molecules/cell )") +
+  ggtitle("In G1 arrest due to nitrogen limitation") +
+  ylab("log10( reads/kb )")
+
+g<- arrangeGrob(exp_veg, exp_arrest, nrow = 1)
+ggsave("Fig_S2.pdf", g , width = 9, height = 5)
+
+# test Poisson regression for both datasets
+model_p <- glm( corrected_n ~ MM.mRNA.cpc , data = pergene, family = poisson(link = "log")) 
+summary(model_p)
+model_p <- glm( corrected_n ~ MN.mRNA.cpc , data = pergene, family = poisson(link = "log")) 
+summary(model_p)
